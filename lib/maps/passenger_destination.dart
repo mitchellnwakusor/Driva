@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:driva/models/firebase_auth.dart';
+import 'package:driva/models/user_info.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:driva/maps/widgets/progress_dialog.dart';
@@ -10,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+
+import '../providers.dart';
 
 class PassengerDestination extends StatefulWidget {
   const PassengerDestination({Key? key}) : super(key: key);
@@ -79,12 +83,25 @@ class _PassengerDestinationState extends State<PassengerDestination> {
     userName = "John Doe";
   }
 
+  final FireStoreDatabase database = FireStoreDatabase();
+
+  void userInfoConfig(UserInformation? userInformation){
+    if(!database.checkInfoFetched(userInformation!)){
+      database.fetchUserInfo(context);
+    }
+  }
+
   @override
   void initState()
   {
     super.initState();
 
     checkIfLocationPermissionAllowed();
+    Future.delayed(Duration.zero,(){
+      print('User is ${Provider.of<UserInfoProvider>(context,listen: false).userInformation}');
+      userInfoConfig(Provider.of<UserInfoProvider>(context,listen: false).userInformation);
+    });
+
   }
 
 

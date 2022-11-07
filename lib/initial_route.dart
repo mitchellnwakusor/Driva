@@ -27,7 +27,8 @@ class _InitialRouteState extends State<InitialRoute> {
           return const Text('Splash Screen');
         } //splashScreen or loading screen
         else if(snapshot.hasData){
-          return const PassengerDestination();
+          print(snapshot.data?.tenantId);
+          return const Placeholder();
         }//homeScreen
         else{
           return const AuthPageHandler();

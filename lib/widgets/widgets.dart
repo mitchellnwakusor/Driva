@@ -7,6 +7,15 @@ import 'package:provider/provider.dart';
 
 import '../providers.dart';
 
+class Placeholder extends StatelessWidget {
+  const Placeholder({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold();
+  }
+}
+
 
 class LoginForm extends StatefulWidget {
   const LoginForm({Key? key}) : super(key: key);

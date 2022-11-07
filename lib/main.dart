@@ -5,6 +5,7 @@ import 'package:driva/screens/add_payment_screen.dart';
 import 'package:driva/screens/change_number_screen.dart';
 import 'package:driva/screens/login_otp_screen.dart';
 import 'package:driva/screens/signup_otp_screen.dart';
+import 'package:driva/screens/testpage.dart';
 import 'package:driva/widgets/utilities.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,7 @@ class _DrivaState extends State<Driva> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (create) => AuthStateHandlerProvider()),
         ChangeNotifierProvider(create: (create) => SignupAndLoginProvider()),
         ChangeNotifierProvider(create: (create) => UserProvider()),
+        ChangeNotifierProvider(create: (create) => UserInfoProvider()),
         ChangeNotifierProvider(create: (create) => AppInfo()),
 
       ],
@@ -75,7 +77,7 @@ class _DrivaState extends State<Driva> with WidgetsBindingObserver {
         initialRoute: '/',
         debugShowCheckedModeBanner: false,
         routes: {
-          // '/': (context) => const PassengerDestination(),
+          // '/': (context) => const TestPage(),
           '/': (context) => const InitialRoute(),
           '/loginVerification': (context) => const LoginScreenOTPVerification(),
           '/signupVerification': (context) => const SignupScreenOTPVerification(),

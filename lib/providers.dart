@@ -1,3 +1,4 @@
+import 'package:driva/models/user_info.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -135,4 +136,13 @@ class UserProvider with ChangeNotifier{
   String? get cardNumber => _cardNumber;
   String? get cardDate => _cardDate;
   String? get cardCVV => _cardCVV;
+}
+
+class UserInfoProvider with ChangeNotifier{
+  UserInformation? userInformation;
+
+  void updateUserInfoObject(UserInformation? newUserInfo){
+    userInformation = newUserInfo;
+    notifyListeners();
+  }
 }
