@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "421280282173",
+    "project_id": "driva-214f2",
+    "storage_bucket": "driva-214f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421280282173:android:3d6aa7e781980235411c54",
+        "android_client_info": {
+          "package_name": "com.cube.driva"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "421280282173-u0tr8jmednj16bgu4hv75q271b5b9ai0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cube.driva",
+            "certificate_hash": "2a5b60f12a88be53c5b391ed736577803caada6f"
+          }
+        },
+        {
+          "client_id": "421280282173-81nn70c7c7g297u4isp4qfhf6ar0s7as.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEoPvQSq2DYvjv2quyoJxDYhtNmbQ__NU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "421280282173-81nn70c7c7g297u4isp4qfhf6ar0s7as.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
