@@ -152,7 +152,7 @@ class FirebaseAuthentication with ChangeNotifier {
       Navigator.pop(context);
       Provider.of<UserProvider>(context,listen: false).appUser = authInstance.currentUser!;
       //Todo: fetch user info after sign in
-      await database.fetchUserInfo(context);
+      await database.fetchUserInfo(context,null);
       if(Provider.of<UserProvider>(context,listen: false).appUser!.email == null )
      {
        Provider.of<UserProvider>(context,listen: false).appUser!.delete();
@@ -194,26 +194,38 @@ class FireStoreDatabase with ChangeNotifier{
       return false;
      }
    }
-   Future<void> fetchUserInfo(BuildContext context) async{
+   Future<void>fetchUserInfo(BuildContext context, String? routeName) async{
      User? user = Provider.of<UserProvider>(context,listen: false).appUser;
+     UserInformation userInformation;
      print(user?.uid);
      Map? userInfoMap;
-     database.ref('/pUser/${user!.uid}').onValue.listen((event) {
-     // database.ref('/pUser/fP0CE5J4ZOTjBsQwcu0aQAuu1iW2').onValue.listen((event) {
-      userInfoMap = Map<String,dynamic>.from(event.snapshot.value as Map);
-      print(userInfoMap);
-      Map? personalInfoMap = userInfoMap!['Personal Info'];
-      Map? paymentInfoMap = userInfoMap!['Payment Info'];
+    try {
+      database.ref('/pUser/${user!.uid}').onValue.listen((event) {
+       // database.ref('/pUser/fP0CE5J4ZOTjBsQwcu0aQAuu1iW2').onValue.listen((event) {
+        userInfoMap = Map<String,dynamic>.from(event.snapshot.value as Map);
+        print(userInfoMap);
+        Map? personalInfoMap = userInfoMap!['Personal Info'];
+        Map? paymentInfoMap = userInfoMap!['Payment Info'];
 
-      // create userInfo object from map
-      PersonalInfo personalInfo = PersonalInfo(emailAddress: personalInfoMap!['email address'],firstName: personalInfoMap!['first name'],lastName: personalInfoMap!['last name'],mobileNumber: personalInfoMap!['mobile number']);
-      PaymentInfo paymentInfo = PaymentInfo(cardCvv: paymentInfoMap!['card cvv'],cardEnabled: paymentInfoMap!['card enabled'],cardExpDate: paymentInfoMap!['card expDate'],cardholderName: paymentInfoMap!['cardholder name'],cardNumber: paymentInfoMap!['card number'],);
+        // create userInfo object from map
+        PersonalInfo personalInfo = PersonalInfo(emailAddress: personalInfoMap!['email address'],firstName: personalInfoMap!['first name'],lastName: personalInfoMap!['last name'],mobileNumber: personalInfoMap!['mobile number']);
+        PaymentInfo paymentInfo = PaymentInfo(cardCvv: paymentInfoMap!['card cvv'],cardEnabled: paymentInfoMap!['card enabled'],cardExpDate: paymentInfoMap!['card expDate'],cardholderName: paymentInfoMap!['cardholder name'],cardNumber: paymentInfoMap!['card number'],);
 
-      UserInformation userInformation = UserInformation(personalInfo: personalInfo,paymentInfo: paymentInfo);
-      Provider.of<UserInfoProvider>(context,listen: false).updateUserInfoObject(userInformation);
+         userInformation = UserInformation(personalInfo: personalInfo,paymentInfo: paymentInfo);
+        Provider.of<UserInfoProvider>(context,listen: false).updateUserInfoObject(userInformation);
 
-      print(Provider.of<UserInfoProvider>(context,listen: false).userInformation?.personalInfo?.firstName);
-     });
+        print(Provider.of<UserInfoProvider>(context,listen: false).userInformation?.personalInfo?.firstName);
+
+        if(routeName!=null){
+          Navigator.pushReplacementNamed(context, routeName);
+        }
+       });
+    } on FirebaseException catch (e) {
+      showDialog(context: context, builder: (BuildContext context) {
+        return dialog.customDialog(dialog.errorWidget(e.message), 'Oops...an error occurred!', context);
+      });
+    }
+
    }
 
    Future<void> createDatabaseUser(BuildContext context) async {
@@ -260,7 +272,11 @@ class FireStoreDatabase with ChangeNotifier{
          }
        });
        Navigator.pop(context);
-       Navigator.pushReplacementNamed(context, '/homeScreen');
+
+       await fetchUserInfo(context, '/homeScreen');
+
+       // Navigator.pushReplacementNamed(context, '/homeScreen');
+       print('i am a bitch i skipped await');
        // Navigator.pop(context);
        // Navigator.pop(context);
      }
@@ -273,7 +289,6 @@ class FireStoreDatabase with ChangeNotifier{
    }
 
    DialogsAlertsWebViews dialog = DialogsAlertsWebViews();
-
 
    //FireStore DB
    Future<void> createFireStoreUser(BuildContext context) async {

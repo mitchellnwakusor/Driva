@@ -83,24 +83,12 @@ class _PassengerDestinationState extends State<PassengerDestination> {
     userName = "John Doe";
   }
 
-  final FireStoreDatabase database = FireStoreDatabase();
-
-  void userInfoConfig(UserInformation? userInformation){
-    if(!database.checkInfoFetched(userInformation!)){
-      database.fetchUserInfo(context);
-    }
-  }
-
   @override
   void initState()
   {
     super.initState();
 
     checkIfLocationPermissionAllowed();
-    Future.delayed(Duration.zero,(){
-      print('User is ${Provider.of<UserInfoProvider>(context,listen: false).userInformation}');
-      userInfoConfig(Provider.of<UserInfoProvider>(context,listen: false).userInformation);
-    });
 
   }
 
@@ -108,6 +96,7 @@ class _PassengerDestinationState extends State<PassengerDestination> {
   @override
   Widget build(BuildContext context)
   {
+    print('Personal info is ${Provider.of<UserInfoProvider>(context, listen: false).userInformation?.personalInfo}');
     return  Scaffold(
       key: sKey,
       drawer: Container(
