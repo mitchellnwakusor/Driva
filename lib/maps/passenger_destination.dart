@@ -96,7 +96,11 @@ class _PassengerDestinationState extends State<PassengerDestination> {
   @override
   Widget build(BuildContext context)
   {
-    print('Personal info is ${Provider.of<UserInfoProvider>(context, listen: false).userInformation?.personalInfo}');
+
+    UserInformation? currentUserInfo = Provider.of<UserInfoProvider>(context, listen: false).userInformation;
+    userEmail = currentUserInfo!.personalInfo!.emailAddress!;
+    userName = currentUserInfo!.personalInfo!.firstName!;
+
     return  Scaffold(
       key: sKey,
       drawer: Container(

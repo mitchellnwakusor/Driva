@@ -13,7 +13,7 @@ class _TestPageState extends State<TestPage> {
   FireStoreDatabase database = FireStoreDatabase();
 
   void getStuff(BuildContext context){
-    database.fetchUserInfo(context);
+    database.fetchUserInfo(context,null);
   }
 
   @override
