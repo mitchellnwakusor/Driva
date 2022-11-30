@@ -115,8 +115,6 @@ class CustomTextStyles {
 
 }
 
-
-
 class DialogsAlertsWebViews {
 
   AlertDialog customDialog(Widget widget, String title, BuildContext context) {

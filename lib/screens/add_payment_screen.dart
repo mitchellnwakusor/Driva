@@ -55,6 +55,7 @@ class _AddPaymentCardWidgetState extends State<AddPaymentCardWidget> {
         elevation: 0,
         actions: [TextButton(onPressed: (){
           Navigator.pop(context);
+          fireStoreDatabase.skippedPaymentInfo(context);
         }, child: Text('skip',style: customTextStyle.textGreyedOut,))],
       ),
       body: Padding(

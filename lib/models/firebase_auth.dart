@@ -75,7 +75,7 @@ class FirebaseAuthentication with ChangeNotifier {
     }
 
   }
-  Future<void> signInwithLink(BuildContext context,String link) async {
+  Future<void> signInWithLink(BuildContext context,String link) async {
     if(authInstance.isSignInWithEmailLink(link)){
       authInstance.signInWithEmailLink(email: Provider.of<UserProvider>(context,listen: false).email!, emailLink: link);
     }
@@ -151,8 +151,6 @@ class FirebaseAuthentication with ChangeNotifier {
       await authInstance.signInWithCredential(credential);
       Navigator.pop(context);
       Provider.of<UserProvider>(context,listen: false).appUser = authInstance.currentUser!;
-      //Todo: fetch user info after sign in
-      await database.fetchUserInfo(context,null);
       if(Provider.of<UserProvider>(context,listen: false).appUser!.email == null )
      {
        Provider.of<UserProvider>(context,listen: false).appUser!.delete();
@@ -164,6 +162,8 @@ class FirebaseAuthentication with ChangeNotifier {
       else {
         Provider.of<UserProvider>(context, listen: false).appUser!.reload();
         Navigator.pop(context);
+        await database.fetchUserInfoLogin(context, '/home');
+
       }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
@@ -175,25 +175,28 @@ class FirebaseAuthentication with ChangeNotifier {
       });
     }
   }
+
+
 }
 
 class FireStoreDatabase with ChangeNotifier{
+   FirebaseAuthentication authentication = FirebaseAuthentication();
    FirebaseFirestore fireStore = FirebaseFirestore.instance;
    //Realtime DB
    FirebaseDatabase database = FirebaseDatabase.instance;
 
    //get user info
-   bool checkInfoFetched(UserInformation userInformation){
-     if(userInformation.personalInfo != null){
-       print('Info returned true');
-       return true;
-
-    }
-     else {
-       print('false');
-      return false;
-     }
-   }
+   // bool checkInfoFetched(UserInformation userInformation){
+   //   if(userInformation.personalInfo != null){
+   //     print('Info returned true');
+   //     return true;
+   //
+   //  }
+   //   else {
+   //     print('false');
+   //    return false;
+   //   }
+   // }
    Future<void>fetchUserInfo(BuildContext context, String? routeName) async{
      User? user = Provider.of<UserProvider>(context,listen: false).appUser;
      UserInformation userInformation;
@@ -208,7 +211,7 @@ class FireStoreDatabase with ChangeNotifier{
         Map? paymentInfoMap = userInfoMap!['Payment Info'];
 
         // create userInfo object from map
-        PersonalInfo personalInfo = PersonalInfo(emailAddress: personalInfoMap!['email address'],firstName: personalInfoMap!['first name'],lastName: personalInfoMap!['last name'],mobileNumber: personalInfoMap!['mobile number']);
+        PersonalInfo personalInfo = PersonalInfo(emailAddress: personalInfoMap!['email address'],firstName: personalInfoMap!['first name'],lastName: personalInfoMap!['last name'],mobileNumber: personalInfoMap!['mobile number'],userType: personalInfoMap!['user type']);
         PaymentInfo paymentInfo = PaymentInfo(cardCvv: paymentInfoMap!['card cvv'],cardEnabled: paymentInfoMap!['card enabled'],cardExpDate: paymentInfoMap!['card expDate'],cardholderName: paymentInfoMap!['cardholder name'],cardNumber: paymentInfoMap!['card number'],);
 
          userInformation = UserInformation(personalInfo: personalInfo,paymentInfo: paymentInfo);
@@ -219,6 +222,48 @@ class FireStoreDatabase with ChangeNotifier{
         if(routeName!=null){
           Navigator.pushReplacementNamed(context, routeName);
         }
+       });
+    } on FirebaseException catch (e) {
+      showDialog(context: context, builder: (BuildContext context) {
+        return dialog.customDialog(dialog.errorWidget(e.message), 'Oops...an error occurred!', context);
+      });
+    }
+
+   }
+   Future<void>fetchUserInfoLogin(BuildContext context, String? routeName) async{
+     User? user = Provider.of<UserProvider>(context,listen: false).appUser;
+     UserInformation userInformation;
+     print(user?.uid);
+     Map? userInfoMap;
+    try {
+      database.ref('/pUser/${user!.uid}').onValue.listen((event) {
+       // database.ref('/pUser/fP0CE5J4ZOTjBsQwcu0aQAuu1iW2').onValue.listen((event) {
+        userInfoMap = Map<String,dynamic>.from(event.snapshot.value as Map);
+        print(userInfoMap);
+        Map? personalInfoMap = userInfoMap!['Personal Info'];
+        Map? paymentInfoMap = userInfoMap!['Payment Info'];
+
+        // create userInfo object from map
+        PersonalInfo personalInfo = PersonalInfo(emailAddress: personalInfoMap!['email address'],firstName: personalInfoMap!['first name'],lastName: personalInfoMap!['last name'],mobileNumber: personalInfoMap!['mobile number'],userType: personalInfoMap!['user type']);
+        PaymentInfo paymentInfo = PaymentInfo(cardCvv: paymentInfoMap!['card cvv'],cardEnabled: paymentInfoMap!['card enabled'],cardExpDate: paymentInfoMap!['card expDate'],cardholderName: paymentInfoMap!['cardholder name'],cardNumber: paymentInfoMap!['card number'],);
+
+         userInformation = UserInformation(personalInfo: personalInfo,paymentInfo: paymentInfo);
+        Provider.of<UserInfoProvider>(context,listen: false).updateUserInfoObject(userInformation);
+
+        print(Provider.of<UserInfoProvider>(context,listen: false).userInformation?.personalInfo?.firstName);
+
+        if(userInformation.personalInfo!.userType=='passenger'){
+          if(routeName!=null){
+            Navigator.pushReplacementNamed(context, routeName);
+          }
+        }
+        else{
+          authentication.authInstance.signOut();
+          showDialog(context: context, builder: (BuildContext context) {
+            return dialog.customDialog(dialog.errorWidget('Please user driver app, credentials do not match'), 'Oops...an error occurred!', context);
+          });
+        }
+
        });
     } on FirebaseException catch (e) {
       showDialog(context: context, builder: (BuildContext context) {
@@ -287,7 +332,30 @@ class FireStoreDatabase with ChangeNotifier{
      }
 
    }
+   Future<void> skippedPaymentInfo(BuildContext context) async{
+     User? user = Provider.of<UserProvider>(context,listen: false).appUser;
+     try{
+       await database.ref('/pUser/${user?.uid}').update({
+         'Payment Info': {
+           'cardholder name': '',
+           'card number': '',
+           'card expDate': '',
+           'card cvv': '',
+           'card enabled': '',
+         }
+       });
+       Navigator.pop(context);
+       Navigator.pop(context);
 
+       await fetchUserInfo(context, '/homeScreen');
+       // Navigator.pop(context);
+     }
+     on FirebaseException catch(e){
+       showDialog(context: context, builder: (BuildContext context) {
+         return dialog.customDialog(dialog.errorWidget(e.message), 'Oops...an error occurred!', context);
+       });
+     }
+   }
    DialogsAlertsWebViews dialog = DialogsAlertsWebViews();
 
    //FireStore DB

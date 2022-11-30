@@ -52,9 +52,9 @@ class _DrivaState extends State<Driva> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed ){
       final PendingDynamicLinkData? data = await FirebaseDynamicLinks.instance.getInitialLink();
       if( data?.link != null){
-        firebaseAuthentication.signInwithLink(context, data!.link.toString());
+        firebaseAuthentication.signInWithLink(context, data!.link.toString());
       }
-      FirebaseDynamicLinks.instance.onLink.listen((event){firebaseAuthentication.signInwithLink(context, event.link.toString());}).onError((error) async{
+      FirebaseDynamicLinks.instance.onLink.listen((event){firebaseAuthentication.signInWithLink(context, event.link.toString());}).onError((error) async{
         showDialog(context: context, builder: (BuildContext context) {
         return dialog.customDialog(dialog.errorWidget(error.message), 'Oops...an error occurred!', context);
       });});
