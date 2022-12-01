@@ -1,4 +1,5 @@
 import 'package:driva/models/user_info.dart';
+import 'package:driva/screens/login_screen.dart';
 import 'package:driva/widgets/utilities.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -161,7 +162,7 @@ class FirebaseAuthentication with ChangeNotifier {
       //TODO: check user type and handle condition in else if
       else {
         Provider.of<UserProvider>(context, listen: false).appUser!.reload();
-        Navigator.pop(context);
+        // Navigator.pop(context);
         await database.fetchUserInfoLogin(context, '/home');
 
       }
@@ -254,11 +255,12 @@ class FireStoreDatabase with ChangeNotifier{
 
         if(userInformation.personalInfo!.userType=='passenger'){
           if(routeName!=null){
-            Navigator.pushReplacementNamed(context, routeName);
+            Navigator.pushReplacementNamed(context, '/homeScreen');
           }
         }
         else{
           authentication.authInstance.signOut();
+          Navigator.pushReplacement(context,MaterialPageRoute(builder: (BuildContext context)=> const LoginScreen()));
           showDialog(context: context, builder: (BuildContext context) {
             return dialog.customDialog(dialog.errorWidget('Please user driver app, credentials do not match'), 'Oops...an error occurred!', context);
           });
